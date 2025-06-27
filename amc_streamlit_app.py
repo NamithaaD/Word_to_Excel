@@ -6,16 +6,28 @@ from docx import Document
 from io import BytesIO
 from PIL import Image
 
-# === PAGE SETUP ===
+# === PAGE CONFIG ===
 st.set_page_config(page_title="AMC Extractor", layout="centered")
 
-# === HEADER LOGO ===
+# === LOGO + COMPANY NAME SIDE BY SIDE ===
 logo = Image.open("nupie.png")
-st.image(logo, width=120)
-st.title("AMC Word Extractor")
-st.markdown("Upload one or more `.docx` files to extract AMC contract details and download as Excel. *(No data is stored)*")
+col1, col2 = st.columns([1, 6])
+with col1:
+    st.image(logo, width=80)
+with col2:
+    st.markdown(
+        "<h2 style='margin-bottom: 0;'>Nu-pie Management Consultancy Services</h2>",
+        unsafe_allow_html=True
+    )
 
-# === FUNCTIONS ===
+# === TITLE & DESCRIPTION ===
+st.title("AMC Word Extractor")
+st.markdown(
+    "Upload one or more `.docx` files to extract AMC contract details and download as Excel. "
+    "_(No data is stored)_"
+)
+
+# === FUNCTION TO EXTRACT TEXT AND TABLES ===
 def extract_text_from_docx(file):
     try:
         doc = Document(file)
@@ -31,10 +43,12 @@ def extract_text_from_docx(file):
         st.warning(f"Error reading document: {e}")
         return '', []
 
+# === CONTRACT NUMBER FROM FILENAME ===
 def extract_contract_number_from_filename(filename):
     m = re.search(r'CC(\d+)_', filename)
     return m.group(1) if m else ''
 
+# === GET FIRST VALID DATE ===
 def extract_first_valid_date(text):
     for date_str in re.findall(r'\b(\d{2}\.\d{2}\.\d{4})\b', text):
         try:
@@ -43,6 +57,7 @@ def extract_first_valid_date(text):
             continue
     return ''
 
+# === MAIN EXTRACTION FUNCTION ===
 def extract_details(text, contract_no, table_data):
     fields = {
         "Contract Type": "",
@@ -72,12 +87,13 @@ def extract_details(text, contract_no, table_data):
     elif re.search(r'LABOUR MAINTENANCE CONTRACT', text, re.IGNORECASE):
         fields["Contract Type"] = "LABOUR MAINTENANCE CONTRACT"
 
-    fields["Customer Name"]  = find(r'Customer Name\s*:\s*(.*?)\n')
+    fields["Customer Name"] = find(r'Customer Name\s*:\s*(.*?)\n')
     fields["Contact Number"] = find(r'Contact Number\s*:\s*(.*?)\n').split("UNIT DETAILS")[0].strip()
 
     addr = re.search(r'Address\s*:\s*(.*?)(?:Contact Number|Location|Unit Details)', text, re.IGNORECASE | re.DOTALL)
     if addr:
         fields["Address"] = re.sub(r'\s+', ' ', addr.group(1)).strip()
+
     loc = re.search(r'Location\s*:\s*(.*?)\n', text, re.IGNORECASE)
     if loc and 'CONTACT NUMBER' not in loc.group(1).upper():
         fields["Location"] = loc.group(1).strip()
@@ -127,32 +143,33 @@ def extract_details(text, contract_no, table_data):
     fields["Unit Details"] = unit_details.strip()
     return fields
 
-# === FILE UPLOAD & EXTRACTION ===
+# === FILE UPLOADER ===
 uploaded_files = st.file_uploader("Upload DOCX files", type="docx", accept_multiple_files=True)
 
+# === PROCESS FILES ===
 if uploaded_files:
-    data = []
+    extracted_data = []
     for file in uploaded_files:
-        txt, tbls = extract_text_from_docx(file)
+        txt, tables = extract_text_from_docx(file)
         if txt.strip():
             contract_no = extract_contract_number_from_filename(file.name)
-            extracted = extract_details(txt, contract_no, tbls)
-            data.append(extracted)
+            details = extract_details(txt, contract_no, tables)
+            extracted_data.append(details)
 
-    if data:
-        df = pd.DataFrame(data)
+    if extracted_data:
+        df = pd.DataFrame(extracted_data)
 
         st.subheader("📄 Preview Extracted Data")
         st.dataframe(df, use_container_width=True)
 
-        buffer = BytesIO()
-        df.to_excel(buffer, index=False, engine='openpyxl')
-        buffer.seek(0)
+        output = BytesIO()
+        df.to_excel(output, index=False, engine='openpyxl')
+        output.seek(0)
 
         st.success("✅ Extraction complete!")
         st.download_button(
             label="📥 Download Excel File",
-            data=buffer,
+            data=output,
             file_name=f"amc_output_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )

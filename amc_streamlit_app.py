@@ -4,8 +4,16 @@ import re
 from datetime import datetime
 from docx import Document
 from io import BytesIO
+from PIL import Image
 
+# === PAGE SETUP ===
 st.set_page_config(page_title="AMC Extractor", layout="centered")
+
+# === HEADER LOGO ===
+logo = Image.open("nupie.png")
+st.image(logo, width=120)
+st.title("AMC Word Extractor")
+st.markdown("Upload one or more `.docx` files to extract AMC contract details and download as Excel. *(No data is stored)*")
 
 # === FUNCTIONS ===
 def extract_text_from_docx(file):
@@ -119,10 +127,7 @@ def extract_details(text, contract_no, table_data):
     fields["Unit Details"] = unit_details.strip()
     return fields
 
-# === STREAMLIT APP ===
-st.title("🛠️ AMC Word Extractor")
-st.markdown("Upload one or more `.docx` files to extract AMC contract details and download as Excel. *(No data is stored)*")
-
+# === FILE UPLOAD & EXTRACTION ===
 uploaded_files = st.file_uploader("Upload DOCX files", type="docx", accept_multiple_files=True)
 
 if uploaded_files:
@@ -137,16 +142,13 @@ if uploaded_files:
     if data:
         df = pd.DataFrame(data)
 
-        # Show preview
         st.subheader("📄 Preview Extracted Data")
         st.dataframe(df, use_container_width=True)
 
-        # Prepare Excel in memory
         buffer = BytesIO()
         df.to_excel(buffer, index=False, engine='openpyxl')
         buffer.seek(0)
 
-        # Download button
         st.success("✅ Extraction complete!")
         st.download_button(
             label="📥 Download Excel File",

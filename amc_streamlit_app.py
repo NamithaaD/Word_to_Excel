@@ -159,16 +159,16 @@ if uploaded_files:
     if extracted_data:
         df = pd.DataFrame(extracted_data)
 
-        st.subheader("📄 Preview Extracted Data")
+        st.subheader(" Preview Extracted Data")
         st.dataframe(df, use_container_width=True)
 
         output = BytesIO()
         df.to_excel(output, index=False, engine='openpyxl')
         output.seek(0)
 
-        st.success("✅ Extraction complete!")
+        st.success(" Extraction complete!")
         st.download_button(
-            label="📥 Download Excel File",
+            label=" Download Excel File",
             data=output,
             file_name=f"amc_output_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

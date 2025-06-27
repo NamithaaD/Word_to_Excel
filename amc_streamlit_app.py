@@ -21,7 +21,7 @@ with col2:
     )
 
 # === TITLE & DESCRIPTION ===
-st.title("AMC Word Extractor")
+st.title("AMCs Word Extractor")
 st.markdown(
     "Upload one or more `.docx` files to extract AMC contract details and download as Excel. "
     "_(No data is stored)_"

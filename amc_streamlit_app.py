@@ -7,7 +7,7 @@ from io import BytesIO
 from PIL import Image
 
 # === PAGE CONFIG ===
-st.set_page_config(page_title="AMC Extractor", layout="centered")
+st.set_page_config(page_title="Care Center", layout="centered")
 
 # === LOGO + COMPANY NAME SIDE BY SIDE ===
 logo = Image.open("nupie.png")
@@ -16,7 +16,7 @@ with col1:
     st.image(logo, width=80)
 with col2:
     st.markdown(
-        "<h2 style='margin-bottom: 0;'>Nu-pie Management Consultancy Services</h2>",
+        "<h2 style='margin-bottom: 0;'>Nu-pie Analytics</h2>",
         unsafe_allow_html=True
     )
 
@@ -179,7 +179,7 @@ st.markdown(
     """<hr style="margin-top: 2em;">
     <div style='text-align: center; font-size: 0.9em; color: gray;'>
         Built by <a href="https://nu-pie.ai/" target="_blank" style="text-decoration: none; color: #636363;">
-        Nu-pie Management Consultancy Services</a>
+        Nu-pie Analytics</a>
     </div>
     """, unsafe_allow_html=True
 )

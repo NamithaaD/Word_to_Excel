@@ -10,7 +10,7 @@ from PIL import Image
 st.set_page_config(page_title="Care Center", layout="centered")
 
 # === LOGO + COMPANY NAME SIDE BY SIDE ===
-logo = Image.open("nupie.png")
+logo = Image.open("carecenter.png")
 col1, col2 = st.columns([1, 6])
 with col1:
     st.image(logo, width=80)

@@ -48,14 +48,6 @@ def extract_contract_number_from_filename(filename):
     m = re.search(r'CC(\d+)_', filename)
     return m.group(1) if m else ''
 
-# === GET FIRST VALID DATE ===
-def extract_first_valid_date(text):
-    for date_str in re.findall(r'\b(\d{2}\.\d{2}\.\d{4})\b', text):
-        try:
-            return datetime.strptime(date_str, '%d.%m.%Y').strftime('%d-%m-%Y')
-        except:
-            continue
-    return ''
 
 # === MAIN EXTRACTION FUNCTION ===
 def extract_details(text, contract_no, table_data):
@@ -68,7 +60,6 @@ def extract_details(text, contract_no, table_data):
         "Location": "",
         "Unit Details": "",
         "Amount": "",
-        "Contract Date": "",
         "Amc Start Date": "",
         "Amc End Date": "",
         "Service Frequency": 4,
@@ -98,7 +89,6 @@ def extract_details(text, contract_no, table_data):
     if loc and 'CONTACT NUMBER' not in loc.group(1).upper():
         fields["Location"] = loc.group(1).strip()
 
-    fields["Contract Date"] = extract_first_valid_date(text)
 
     amount_match = re.search(r'AMOUNT\s*[:\-]?\s*(?:Rs\.?|₹)?\s*([\d,]+(?:\.\d{1,2})?)', text, re.IGNORECASE)
     if not amount_match:

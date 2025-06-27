@@ -16,7 +16,7 @@ with col1:
     st.image(logo, width=80)
 with col2:
     st.markdown(
-        "<h2 style='margin-bottom: 0;'>Nu-pie Analytics</h2>",
+        "<h2 style='margin-bottom: 0;'>Care Center</h2>",
         unsafe_allow_html=True
     )
 
